@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Newtonsoft.Json;
-using Pllab;
 
 namespace Pllab
 {
@@ -43,18 +39,24 @@ namespace Pllab
 
         public void AddEmployee(Employee employee)
         {
-            if (employee == null)
+            try
             {
-                throw new ArgumentNullException(nameof(employee));
+                EmployeeValidator validator = new EmployeeValidator();
+                validator.ValidateEmployeeFull(employee);
+                _employees.Add(employee);
             }
+            catch (AggregateException ex)
+            {
 
-            EmployeeValidator validator = new EmployeeValidator();
-            validator.ValidateEmployee(employee);
-            validator.ValidatePhoneAndEmail(employee);
-            validator.ValidateFiredDate(employee);
-            _employees.Add(employee);
-            SaveData();
+                throw;
+                return;
+            }
+            finally
+            {
+                SaveData();
+            }
         }
+
 
         public void UpdateEmployee(Employee employee)
         {

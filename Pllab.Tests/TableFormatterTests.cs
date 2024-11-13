@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Pllab
+﻿namespace Pllab
 {
     [TestFixture]
     public class TableFormatterTests
@@ -43,10 +37,14 @@ namespace Pllab
 
                 // Assert
                 Assert.That(output, Contains.Substring("| Name         | EMail           | Phone           | Hired      | Fired      |"));
-                Assert.That(output, Contains.Substring("| John Doe     | test@example.com | 123-456-7890 |"));
-                Assert.That(output, Contains.Substring("| Jane Doe     | test2@example.com | 987-654-3210 |"));
+                Assert.That(output, Contains.Substring("|--------------|-----------------|-----------------|------------|------------|"));
+                Assert.That(output, Contains.Substring("| John Doe      | test@example.com | 123-456-7890  | 13.11.2024 | -          |"));
+                Assert.That(output, Contains.Substring("| Jane Doe      | test2@example.com | 987-654-3210  | 13.11.2024 | -          |"));
             }
         }
+
+
+
 
     }
 }

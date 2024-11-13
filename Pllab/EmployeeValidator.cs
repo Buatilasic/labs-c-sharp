@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using Pllab;
+using System.Text.RegularExpressions;
 public class EmployeeValidator
 {
     public List<ValidationException> ValidateEmployee(Employee employee)
@@ -28,21 +28,27 @@ public class EmployeeValidator
     {
         var errors = new List<ValidationException>();
 
-        string phoneRegex = @"^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$";
-        string emailRegex = @"[^@ \t\r\n]+@[^@ \t\r\n]+.[^@ \t\r\n]+";
-
-        if (!Regex.IsMatch(employee.Phone, phoneRegex))
+        if (!string.IsNullOrEmpty(employee.Phone))
         {
-            errors.Add(new ValidationException("ERROR: Phone number is not in the correct format. Please, check string --phone"));
+            string phoneRegex = @"^[\+]?[0-9]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{2}[-\s\.]?[0-9]{2}$";
+            if (!Regex.IsMatch(employee.Phone, phoneRegex))
+            {
+                errors.Add(new ValidationException("ERROR: Phone number is not in the correct format. Please, check string --phone"));
+            }
         }
 
-        if (!Regex.IsMatch(employee.Email, emailRegex))
+        if (!string.IsNullOrEmpty(employee.Email))
         {
-            errors.Add(new ValidationException("ERROR: Email is not in the correct format. Please, use format '<user>@<server>.<local>' for --email."));
+            string emailRegex = @"[^@ \t\r\n]+@[^@ \t\r\n]+.[^@ \t\r\n]+";
+            if (!Regex.IsMatch(employee.Email, emailRegex))
+            {
+                errors.Add(new ValidationException("ERROR: Email is not in the correct format. Please, use format '<user>@<server>.<local>' for --email."));
+            }
         }
 
         return errors;
     }
+
 
     public List<ValidationException> ValidateFiredDate(Employee employee)
     {
@@ -61,7 +67,11 @@ public class EmployeeValidator
         var errors = ValidateEmployee(employee);
         errors.AddRange(ValidatePhoneAndEmail(employee));
         errors.AddRange(ValidateFiredDate(employee));
-
+        if (errors.Count > 0)
+        {
+            throw new AggregateException(errors);
+        }
         return errors;
+
     }
 }

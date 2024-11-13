@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace Pllab
 {
-   public class Program
+    public class Program
     {
         private static readonly Log _log = new Log();
         private static readonly DataEngine _dataEngine;
@@ -54,16 +52,17 @@ namespace Pllab
             }
         }
 
+
         public static void AddEmployee(string[] args)
         {
+            string email = null;
+            string fullName = null;
+            string phone = null;
+            DateTime hired = DateTime.MinValue;
+            DateTime? fired = null;
+
             try
             {
-                string email = null;
-                string fullName = null;
-                string phone = null;
-                DateTime hired = DateTime.MinValue;
-                DateTime? fired = null;
-
                 for (int i = 1; i < args.Length; i++)
                 {
                     if (args[i].StartsWith("--email"))
@@ -92,7 +91,6 @@ namespace Pllab
                         i++;
                     }
                 }
-
                 if (email != null)
                 {
                     Employee employee = new Employee
@@ -113,9 +111,13 @@ namespace Pllab
                     _log.Error("Email is required.");
                 }
             }
-            catch (ValidationException ex)
+            catch (AggregateException ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Validation errors:");
+                foreach (var innerException in ex.InnerExceptions)
+                {
+                    Console.WriteLine($"- {innerException.Message}");
+                }
             }
         }
 
@@ -134,8 +136,16 @@ namespace Pllab
 
             if (email != null)
             {
-                _dataEngine.RemoveEmployee(email);
-                _log.Info($"Employee {email} removed.");
+                if (_dataEngine.GetEmployeeByEmail(email) != null)
+                {
+                    _dataEngine.RemoveEmployee(email);
+                    _log.Info($"Employee {email} removed.");
+                }
+                else
+                {
+                    _log.Error($"Employee {email} not found.");
+                    Console.WriteLine("Employee not found.");
+                }
             }
             else
             {
@@ -205,6 +215,7 @@ namespace Pllab
 
                     _dataEngine.UpdateEmployee(employee);
                     _log.Info($"Employee {email} updated.");
+                    ShowEmployee(args);
                 }
                 else
                 {
@@ -263,14 +274,16 @@ namespace Pllab
                     }
 
                     var validator = new EmployeeValidator();
-                    var errors = validator.ValidateEmployeeFull(employee);
-
-                    if (errors.Count > 0)
+                    try
+                    {
+                        var errors = validator.ValidateEmployeeFull(employee);
+                    }
+                    catch (AggregateException ex)
                     {
                         Console.WriteLine("Validation errors:");
-                        for (int i = 0; i < errors.Count; i++)
+                        foreach (var innerException in ex.InnerExceptions)
                         {
-                            Console.WriteLine($"{i + 1}. {errors[i].Message}");
+                            Console.WriteLine($"- {innerException.Message}");
                         }
                     }
                 }

@@ -1,10 +1,4 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Pllab;
-
-namespace Pllab
+﻿namespace Pllab
 {
     [TestFixture]
     public class EmployeeValidatorTests
